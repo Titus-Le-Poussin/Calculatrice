@@ -8,11 +8,25 @@ customtkinter.set_default_color_theme("blue")
 
 Max_chiffre= 9
 pile_ecran = []
+nombre_courant = False
+operation_courante = False
+
 
 def touche_appuyee(touche):
     print('Touche:', touche)
     if touche in['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.']:
         traite_touche_chiffre(touche)
+    elif touche in ['MOIN', 'FOIS', 'DIVISER', 'PLUS']:
+        traite_touche_operation(touche)
+
+
+def _get_nombre_from_pile():
+    text = _get_nombre_as_text_from_pile()
+    if '.' in pile_ecran:
+        return float(text)
+    else:
+        return int(text)
+
 
 def update_screen(value = False):
     if value:
@@ -34,6 +48,36 @@ def traite_touche_chiffre(num):
         pile_ecran.append(num)
         ecran = ''.join(pile_ecran)
         update_screen(_get_nombre_as_text_from_pile())
+
+
+def traite_touche_operation(operation):
+    global nombre_courant, operation_courante
+    if nombre_courant and operation_courante:
+        execute_operation(operation_courante)
+    if not nombre_courant: 
+        nombre_courant = _get_nombre_from_pile()
+    operation_courante = operation
+    pile_ecran.clear()
+
+def execute_operation(operation):
+    global nombre_courant, operation_courante
+    if operation:
+        nombre2 = _get_nombre_from_pile()
+        result = 0
+        if operation == 'PLUS':
+            result = nombre_courant + nombre2
+        elif operation == 'MOIN':
+            result = nombre_courant - nombre2
+        elif operation == 'FOIS':
+            result = nombre_courant * nombre2
+        elif operation == 'DIVISER':
+            if nombre2 != 0:
+                result = nombre_courant / nombre2
+            else:
+                result = "Erreur"
+        nombre_courant = result
+        pile_ecran.clear()
+        update_screen(str(nombre_courant))
 
 app = customtkinter.CTk()
 app.title("Calculatrice")
