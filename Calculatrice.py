@@ -18,6 +18,8 @@ def touche_appuyee(touche):
         traite_touche_chiffre(touche)
     elif touche in ['MOIN', 'FOIS', 'DIVISER', 'PLUS']:
         traite_touche_operation(touche)
+    elif touche == 'EGALE':
+        traite_touche_egale()
 
 
 def _get_nombre_from_pile():
@@ -52,12 +54,21 @@ def traite_touche_chiffre(num):
 
 def traite_touche_operation(operation):
     global nombre_courant, operation_courante
-    if nombre_courant and operation_courante:
-        execute_operation(operation_courante)
+    traite_operation_courante()
     if not nombre_courant: 
         nombre_courant = _get_nombre_from_pile()
     operation_courante = operation
     pile_ecran.clear()
+
+def traite_touche_egale():
+    traite_operation_courante()
+
+
+def traite_operation_courante():
+    global operation_courante
+    if nombre_courant and operation_courante:
+        execute_operation(operation_courante)
+        operation_courante = False
 
 def execute_operation(operation):
     global nombre_courant, operation_courante
@@ -78,6 +89,8 @@ def execute_operation(operation):
         nombre_courant = result
         pile_ecran.clear()
         update_screen(str(nombre_courant))
+
+
 
 app = customtkinter.CTk()
 app.title("Calculatrice")
