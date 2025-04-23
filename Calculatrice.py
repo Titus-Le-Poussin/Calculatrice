@@ -7,9 +7,11 @@ customtkinter.set_appearance_mode("dark")
 customtkinter.set_default_color_theme("blue")
 
 Max_chiffre= 9
+MAX_Result = 999999999
 pile_ecran = []
 nombre_courant = False
 operation_courante = False
+erreur = False
 
 
 def touche_appuyee(touche):
@@ -20,7 +22,8 @@ def touche_appuyee(touche):
         traite_touche_operation(touche)
     elif touche == 'EGALE':
         traite_touche_egale()
-
+    elif touche == 'RESET':
+        traite_touche_reset()
 
 def _get_nombre_from_pile():
     text = _get_nombre_as_text_from_pile()
@@ -28,6 +31,14 @@ def _get_nombre_from_pile():
         return float(text)
     else:
         return int(text)
+    
+def traite_touche_reset():
+    pile_ecran.clear()
+    global nombre_courant, operation_courante, erreur
+    nombre_courant = False
+    operation_courante = False
+    erreur = False
+    update_screen()
 
 
 def update_screen(value = False):
@@ -70,8 +81,19 @@ def traite_operation_courante():
         execute_operation(operation_courante)
         operation_courante = False
 
+
+def affiche_resultat():
+    flottant = nombre_courant - math.floor(nombre_courant)
+    if erreur:
+        update_screen("Erreur")
+    else:
+        if flottant > 0:
+            update_screen(str(nombre_courant))
+        else:
+            update_screen(str(math.floor(nombre_courant)))
+
 def execute_operation(operation):
-    global nombre_courant, operation_courante
+    global nombre_courant, erreur, operation_courante
     if operation:
         nombre2 = _get_nombre_from_pile()
         result = 0
@@ -82,13 +104,16 @@ def execute_operation(operation):
         elif operation == 'FOIS':
             result = nombre_courant * nombre2
         elif operation == 'DIVISER':
-            if nombre2 != 0:
-                result = nombre_courant / nombre2
+            if nombre2 == 0:
+                erreur = True
             else:
-                result = "Erreur"
-        nombre_courant = result
+                result = nombre_courant / nombre2
+        if result > MAX_Result or result < -MAX_Result:
+            erreur = True
+        if not erreur:
+            nombre_courant = result
         pile_ecran.clear()
-        update_screen(str(nombre_courant))
+        affiche_resultat()
 
 
 
